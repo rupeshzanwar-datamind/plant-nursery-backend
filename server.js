@@ -6,8 +6,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
-mongoose.connect("mongodb://127.0.0.1:27017/nursery")
+mongoose.connect("mongodb+srv://admin:admin123@cluster0.eackwdo.mongodb.net/nursery")
 .then(() => console.log("MongoDB Connected"))
 .catch(err => console.log(err));
 
