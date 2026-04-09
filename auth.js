@@ -6,27 +6,27 @@ const mongoose = require("mongoose");
 
 // 🔐 REGISTER
 router.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  try {
+    const { name, email, password } = req.body;
 
-  if (!name || !email || !password) {
-    return res.json({ message: "All fields required" });
+    // 🔴 CHECK EXISTING USER
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.json({ message: "User already exists" });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+    const user = new User({ name, email, password: hashed });
+
+    await user.save();
+
+    res.json({ message: "User registered successfully" });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
   }
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return res.json({ message: "Invalid email format" });
-  }
-
-  if (password.length < 6) {
-    return res.json({ message: "Password must be at least 6 characters" });
-  }
-
-  const hashed = await bcrypt.hash(password, 10);
-  const user = new User({ name, email, password: hashed });
-
-  await user.save();
-  res.json({ message: "User registered" });
 });
-
 // 🔐 LOGIN
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
